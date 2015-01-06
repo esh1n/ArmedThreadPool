@@ -69,12 +69,17 @@ public class ArmedThreadPool extends ThreadPoolExecutor {
                         System.out.println("intent " + intent);
                     }
                 } catch (CancellationException ce) {
+                    System.out.println("exception in CancellationException " );
                     t = ce;
                 } catch (ExecutionException ee) {
+                       System.out.println("exception in ExecutionException " );
                     t = ee.getCause();
                 } catch (InterruptedException ie) {
+                    System.out.println("exception in interrupted " );
                     Thread.currentThread().interrupt(); // ignore/reset
                 }
+            }else{
+                  System.out.println("exception ib throwable afterexecute " );
             }
             if (t != null) {
                 System.out.println(t);
