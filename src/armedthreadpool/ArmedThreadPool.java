@@ -20,15 +20,15 @@ import java.util.concurrent.TimeUnit;
  *
  * @author sergey
  */
-public class PriorityExecutor extends ThreadPoolExecutor {
+public class ArmedThreadPool extends ThreadPoolExecutor {
 
-        public PriorityExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) {
+        public ArmedThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) {
             super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
         }
         //Utitlity method to create thread pool easily 
 
         public static ExecutorService newFixedThreadPool(int nThreads) {
-            return new PriorityExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new PriorityBlockingQueue<>());
+            return new ArmedThreadPool(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new PriorityBlockingQueue<>());
         }
         //Submit with New comparable task 
 
@@ -47,7 +47,7 @@ public class PriorityExecutor extends ThreadPoolExecutor {
         }
 
         public <T> Future<?> submit(Callable<T> command, int priority,String intent) {
-            ComparableFutureTask<T> task = new ComparableFutureTask<T>(command, priority,intent);
+            RunningFutureTask<T> task = new RunningFutureTask<T>(command, priority,intent);
             return super.submit(task);
         }
 
@@ -61,7 +61,7 @@ public class PriorityExecutor extends ThreadPoolExecutor {
             super.afterExecute(r, t);
             if (t == null && r instanceof Future<?>) {
                 try {
-                    ComparableFutureTask<?> futureTask = (ComparableFutureTask<?>) r;
+                    RunningFutureTask<?> futureTask = (RunningFutureTask<?>) r;
                     if (futureTask.isDone()) {
                         String result = (String) futureTask.get();
                         System.out.println("result " + result);

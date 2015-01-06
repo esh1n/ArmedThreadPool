@@ -21,10 +21,10 @@ import java.util.concurrent.TimeUnit;
  *
  * @author sergey
  */
-public class ArmedThreadPool {
+public class ArmedThreadPoolMain {
 
     public static void main(String[] args) {
-        PriorityExecutor executorService = (PriorityExecutor) PriorityExecutor.newFixedThreadPool(1);
+        ArmedThreadPool executorService = (ArmedThreadPool) ArmedThreadPool.newFixedThreadPool(1);
         Callable<String> command1 = new ConcreteCallableCommand("1");
         Callable<String> command2 = new ConcreteCallableCommand("2");
         Callable<String> command3 = new ConcreteCallableCommand("3");
@@ -32,10 +32,10 @@ public class ArmedThreadPool {
         Callable<String> command5 = new ConcreteCallableCommand("5");
 
         executorService.submit(command1, 1, "1");
-        executorService.submit(command2, 2, "2");
         executorService.submit(command3, 3, "3");
-        executorService.submit(command4, 4, "4");
+        executorService.submit(command2, 2, "2");
         executorService.submit(command5, 5, "5");
+        executorService.submit(command4, 4, "4");
 
         executorService.shutdown();
         try {
