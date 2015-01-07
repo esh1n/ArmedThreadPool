@@ -5,6 +5,7 @@
  */
 package armedthreadpool;
 
+import java.io.Serializable;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -28,7 +29,7 @@ public class ArmedThreadPool extends ThreadPoolExecutor {
         //Utitlity method to create thread pool easily 
 
         public static ExecutorService newFixedThreadPool(int nThreads) {
-            return new ArmedThreadPool(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new PriorityBlockingQueue<>());
+            return new ArmedThreadPool(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new PriorityBlockingQueue<Runnable>());
         }
         //Submit with New comparable task 
 
@@ -46,8 +47,17 @@ public class ArmedThreadPool extends ThreadPoolExecutor {
             return (RunnableFuture<T>) callable;
         }
 
-        public <T> Future<?> submit(Callable<T> command, int priority,String intent) {
-            RunningFutureTask<T> task = new RunningFutureTask<T>(command, priority,intent);
+    /**
+     *
+     * @param <T>
+     * @param command
+     * @param priority
+     * @param intent
+     * @return
+     */
+    public <T> Future<?> submit(CommandExecutable<T> command, int priority,String intent) {
+            CallableCommandWrapper<T> wrapper=new CallableCommandWrapper<T>(100500,command);
+            RunningFutureTask<T> task = new RunningFutureTask<T>(wrapper, priority,intent);
             return super.submit(task);
         }
 
