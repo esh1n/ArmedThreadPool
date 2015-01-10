@@ -23,29 +23,29 @@ import java.util.concurrent.TimeUnit;
  */
 public class ArmedThreadPool extends ThreadPoolExecutor {
 
-        public ArmedThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) {
-            super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
-        }
-        //Utitlity method to create thread pool easily 
+    public ArmedThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) {
+        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
+    }
+    //Utitlity method to create thread pool easily 
 
-        public static ExecutorService newFixedThreadPool(int nThreads) {
-            return new ArmedThreadPool(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new PriorityBlockingQueue<Runnable>());
-        }
-        //Submit with New comparable task 
+    public static ExecutorService newFixedThreadPool(int nThreads) {
+        return new ArmedThreadPool(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new PriorityBlockingQueue<Runnable>());
+    }
+    //Submit with New comparable task 
 
-        public Future<?> submit(Runnable task, int priority) {
-            return super.submit(new ComparableFutureTask(task, null, priority));
-        }
-        //execute with New comparable task 
+    public Future<?> submit(Runnable task, int priority) {
+        return super.submit(new ComparableFutureTask(task, null, priority));
+    }
+    //execute with New comparable task 
 
-        public void execute(Runnable command, int priority) {
-            super.execute(new ComparableFutureTask(command, null, priority));
-        }
+    public void execute(Runnable command, int priority) {
+        super.execute(new ComparableFutureTask(command, null, priority));
+    }
 
-        @Override
-        protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
-            return (RunnableFuture<T>) callable;
-        }
+    @Override
+    protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
+        return (RunnableFuture<T>) callable;
+    }
 
     /**
      *
@@ -55,45 +55,45 @@ public class ArmedThreadPool extends ThreadPoolExecutor {
      * @param intent
      * @return
      */
-    public <T> Future<?> submit(CommandExecutable<T> command, int priority,String intent) {
-            CallableCommandWrapper<T> wrapper=new CallableCommandWrapper<T>(100500,command);
-            RunningFutureTask<T> task = new RunningFutureTask<T>(wrapper, priority,intent);
-            return super.submit(task);
-        }
+    public <T> Future<?> submit(CommandExecutable<T> command, int priority, String intent) {
+        CallableCommandWrapper<T> wrapper = new CallableCommandWrapper<T>(100500, command);
+        RunningFutureTask<T> task = new RunningFutureTask<T>(wrapper, priority, intent);
+        return super.submit(task);
+    }
 
-        @Override
-        protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
-            return (RunnableFuture<T>) runnable;
-        }
+    @Override
+    protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
+        return (RunnableFuture<T>) runnable;
+    }
 
-        @Override
-        protected void afterExecute(Runnable r, Throwable t) {
-            super.afterExecute(r, t);
-            if (t == null && r instanceof Future<?>) {
+    @Override
+    protected void afterExecute(Runnable r, Throwable t) {
+        super.afterExecute(r, t);
+        if (t == null && r instanceof Future<?>) {
+            RunningFutureTask<?> futureTask = (RunningFutureTask<?>) r;
+            if (futureTask.isDone()) {
                 try {
-                    RunningFutureTask<?> futureTask = (RunningFutureTask<?>) r;
-                    if (futureTask.isDone()) {
-                        String result = (String) futureTask.get();
-                        System.out.println("result " + result);
-                        String intent =futureTask.getIntent();
-                        System.out.println("intent " + intent);
-                    }
+                    String result = (String) futureTask.get();
+                    System.out.println("result " + result);
+                    String intent = futureTask.getIntent();
+                    System.out.println("intent " + intent);
                 } catch (CancellationException ce) {
-                    System.out.println("exception in CancellationException " );
+                    System.out.println("exception in CancellationException ");
                     t = ce;
                 } catch (ExecutionException ee) {
-                       System.out.println("exception in ExecutionException " );
+                    System.out.println("exception in ExecutionException ");
                     t = ee.getCause();
                 } catch (InterruptedException ie) {
-                    System.out.println("exception in interrupted " );
+                    System.out.println("exception in interrupted ");
                     Thread.currentThread().interrupt(); // ignore/reset
                 }
-            }else{
-                  System.out.println("exception ib throwable afterexecute " );
             }
-            if (t != null) {
-                System.out.println(t);
-            }
+        } else {
+            System.out.println("exception ib throwable afterexecute ");
         }
-
+        if (t != null) {
+            System.out.println(t);
+        }
     }
+
+}

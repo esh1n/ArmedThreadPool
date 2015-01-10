@@ -34,12 +34,13 @@ public class ArmedThreadPoolMain {
         Callable<String> wrapper=new CallableCommandWrapper<String>(100500,command6);
         RunningFutureTask<String> task6 = new RunningFutureTask<String>(wrapper, 6,"123");
 
-        executorService.submit(task6);
+        
         executorService.submit(command1, 1, "1");
         executorService.submit(command3, 3, "3");
         executorService.submit(command2, 2, "2");
         executorService.submit(command5, 5, "5");
         executorService.submit(command4, 4, "4");
+        executorService.submit(task6);
         
         task6.cancel(true);
         
